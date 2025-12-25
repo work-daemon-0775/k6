@@ -1,0 +1,15 @@
+---
+- name: Generate docker-compose.yml files
+  hosts: localhost
+  gather_facts: false
+
+  tasks:
+    - name: Template generate compose
+      template:
+        src: templates/generate.docker-compose.j2
+        dest: "{{ playbook_dir }}/generate.docker-compose.yml"
+
+    - name: Template run-test compose
+      template:
+        src: templates/run-test.docker-compose.j2
+        dest: "{{ playbook_dir }}/run-test.docker-compose.yml"

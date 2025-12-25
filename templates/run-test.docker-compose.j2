@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+{% for service in services %}
+#################### {{ service.name }} ###################
+  k6-{{ service.name }}:
+    image: grafana/k6:1.2.3
+    networks:
+      - monitoring
+    environment:
+      - K6_PROMETHEUS_RW_SERVER_URL=http://prometheus:9090/api/v1/write
+      - K6_PROMETHEUS_RW_TREND_AS_NATIVE_HISTOGRAM=true
+    env_file:
+      - ./k6/{{ project_name }}/{{ service.name }}/.env
+    volumes:
+      - ./k6/{{ project_name }}/{{ service.name }}:/scripts
+      - ./k6/{{ project_name }}/{{ service.name }}/data:/tmp/data
+    command: >
+      run
+      --out experimental-prometheus-rw
+{###################### Tags ##############################}
+{% if service.tags is defined %}
+{% for key, value in service.tags.items() %}
+      --tag {{ key }}={{ value }}
+{% endfor %}
+{% endif %}
+{################### Load params ##########################}
+      --vus {{ service.load.vus | default(1) }}
+{% if service.load.duration is defined %}
+      --duration {{ service.load.duration }}
+{% elif service.load.iterations is defined %}
+      --iterations {{ service.load.iterations }}
+{% endif %}
+{###################### Run ###############################}
+      /scripts/script.js
+{% endfor %}
+
+networks:
+  monitoring:
+    external: true

@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+{% for service in services %}
+######################### {{ service.name }} #####################
+  generate-{{ service.name }}:
+    image: generator:v7.15.0
+    build:
+      context: .
+      dockerfile: docker/generator
+    user: "1000:1000"
+    environment:
+      API_HOST: "{{ service.url }}"
+      BASE_URL: "{{ service.url }}"
+      SLEEP_DURATION: "0.1"
+    volumes:
+      - {{ project_dir }}:/ci
+      - ./scripts/generate_service.sh:/tmp/generate_service.sh
+      - ./scripts/k6_envize.py:/tmp/k6_envize.py
+    command: >
+      sh -c "
+        chmod +x /tmp/generate_service.sh &&
+        /tmp/generate_service.sh {{ project_name }} {{ service.name }} {{ service.url }}
+      "
+{% endfor %}

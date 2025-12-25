@@ -1,0 +1,31 @@
+
+all:
+  vars:
+    project_dir: "{{ playbook_dir }}"
+    global_zone: "test"
+    load:
+      vus: 50
+      duration: 1m
+      # iterations: 3
+
+    services:
+      - name: "service-1"
+        url: "service-1.apps.dev" 
+        tags:
+          service: "service-si"
+          zone: "{{ global_zone }}"
+        load:
+          vus: "{{ load.vus }}"
+          duration: "{{ load.duration }}"
+          # iterations: "{{ load.iterations }}"
+
+      - name: "service-2"
+        url: "service-2.apps.dev" 
+        tags:
+          service: "service-si"
+          zone: "{{ global_zone }}"
+        load:
+          vus: "{{ load.vus }}"
+          duration: "{{ load.duration }}"
+          # iterations: "{{ load.iterations }}"
+
